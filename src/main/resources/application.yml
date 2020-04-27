@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: {{appname}}
+  boot:
+    admin:
+      client:
+        url: "${adminServiceURL:http://localhost:8099}"   # Comma separated ordered list of URLs of the Spring Boot Admin server to register at. This triggers the AutoConfiguration. Mandatory.
+        instance:
+          service-base-url: "http://${serviceHost:localhost}:${servicePort:8443}"
+        username: "${adminUser}"         # Username and password in case the SBA Server api is protected with HTTP Basic authentication.
+        password: "${adminPassword}"
+  profiles:
+    active:
+      - secure
+  mustache:
+     check-template-location: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: ALWAYS
+
+---
+spring:
+  profiles: insecure
+
+---
+spring:
+  profiles: secure
+  security:
+    user:
+      name: "${adminUser}"
+      password: "${adminPassword}"
+  boot:
+    admin:
+      client:
+        username: "${adminUser}"       #These two are needed so that the client
+        password: "${adminPassword}"   #can register at the protected server api
+        instance:
+          metadata:
+            user.name: "${adminUser}"         #These two are needed so that the server
+            user.password: "${adminPassword}" #can access the protected client endpoints
